@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>솔 인챈트 인플루언서 데이터 분석 보고서</title>
+    <style>
+        /* 기본 인쇄 및 화면 공통 스타일 */
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+        
+        @page {
+            size: A4;
+            margin: 20mm 15mm;
+            background-color: #ffffff;
+            @bottom-right {
+                content: counter(page);
+                font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+                font-size: 9pt;
+                color: #94a3b8;
+            }
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+            font-size: 10pt;
+            line-height: 1.6;
+            color: #1e293b;
+            background-color: #ffffff;
+        }
+
+        /* 리포트 헤더 상단 영역 - 다크 퍼플/네이비 톤으로 세련된 IT/게임 느낌 구현 */
+        .report-header {
+            margin: -20mm -15mm 25px -15mm;
+            padding: 35px 20mm 30px 20mm;
+            background: linear-gradient(135deg, #2e1065 0%, #0f172a 100%);
+            color: #ffffff;
+            border-bottom: 5px solid #7c3aed;
+        }
+        
+        .report-header .sub-tag {
+            display: inline-block;
+            background-color: #7c3aed;
+            color: #ffffff;
+            font-size: 9pt;
+            font-weight: bold;
+            padding: 4px 10px;
+            border-radius: 4px;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .report-header h1 {
+            margin: 0 0 10px 0;
+            font-size: 21pt;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            line-height: 1.3;
+        }
+        
+        .report-header .meta-info {
+            font-size: 9.5pt;
+            color: #cbd5e1;
+            margin-top: 5px;
+        }
+
+        /* 대단원 섹션 */
+        .section {
+            margin-bottom: 35px;
+            page-break-inside: avoid;
+        }
+        
+        .section-title {
+            font-size: 13.5pt;
+            font-weight: 700;
+            color: #0f172a;
+            border-left: 5px solid #7c3aed;
+            padding-left: 10px;
+            margin-top: 0;
+            margin-bottom: 15px;
+            letter-spacing: -0.3px;
+            page-break-after: avoid;
+        }
+        
+        /* 메인 카드 박스 */
+        .card {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 16px;
+            margin-bottom: 15px;
+        }
+        
+        /* 요약 수치 강조 */
+        .budget-highlight {
+            font-size: 14pt;
+            font-weight: 700;
+            color: #dc2626;
+            margin-top: 5px;
+        }
+        
+        /* 표 스타일 */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 8.5pt;
+            margin-bottom: 12px;
+            page-break-inside: auto;
+        }
+        
+        tr {
+            page-break-inside: avoid;
+            page-break-after: auto;
+        }
+        
+        th {
+            background-color: #475569;
+            color: #ffffff;
+            font-weight: 600;
+            padding: 8px 6px;
+            border: 1px solid #334155;
+            text-align: center;
+        }
+        
+        td {
+            padding: 7px 6px;
+            border: 1px solid #e2e8f0;
+            color: #334155;
+        }
+        
+        tr:nth-child(even) td {
+            background-color: #f8fafc;
+        }
+        
+        /* 테이블 열 정렬 및 포맷 */
+        .text-center { text-align: center; }
+        .text-right { text-align: right; }
+        .text-left { text-align: left; }
+        
+        .fw-bold { font-weight: bold; }
+        .color-blue { color: #2563eb; }
+        .color-red { color: #dc2626; }
+        
+        /* 배지 스타일 */
+        .badge {
+            display: inline-block;
+            padding: 2px 6px;
+            font-size: 8pt;
+            font-weight: bold;
+            border-radius: 4px;
+            text-align: center;
+        }
+        
+        .badge-o { background-color: #dcfce7; color: #15803d; }
+        .badge-dash { background-color: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; padding: 2px 10px; }
+        .badge-x { background-color: #fee2e2; color: #b91c1c; }
+        
+        /* 비고 안내 텍스트 */
+        .note-text {
+            font-size: 8.5pt;
+            color: #64748b;
+            font-style: italic;
+            margin-top: 5px;
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+        
+        /* 의견 박스 */
+        .opinion-box {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-left: 5px solid #ef4444; /* 위험도 직관적 표시 */
+            border-radius: 4px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+        
+        .opinion-box-content {
+            font-size: 9.5pt;
+            color: #1e293b;
+            line-height: 1.6;
+        }
+        
+        .opinion-title {
+            font-size: 11pt;
+            font-weight: bold;
+            color: #0f172a;
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 리포트 헤더 상단 영역 -->
+    <div class="report-header">
+        <span class="sub-tag">Influencer Data Analysis</span>
+        <h1>[솔 인챈트] 인플루언서 데이터 분석 보고서</h1>
+        <div class="meta-info">아이템매니아 거래 활성화를 위한 크리에이터 데이터 분석</div>
+    </div>
+
+    <!-- 01. 분석 배경 및 목적 -->
+    <div class="section">
+        <div class="section-title">01. 분석 배경 및 목적</div>
+        <div class="card">
+            <table style="width:100%; border:none; margin:0; font-size:9.5pt;">
+                <tr style="background:none;"><td style="width:15%; font-weight:bold; border:none; padding:4px 0; color:#0f172a;">■ 분석 배경</td><td style="border:none; padding:4px 0;">아이템매니아 거래 활성화를 위한 크리에이터 협업 추진</td></tr>
+                <tr style="background:none;"><td style="font-weight:bold; border:none; padding:4px 0; color:#0f172a;">■ 분석 목적</td><td style="border:none; padding:4px 0;">제공된 유튜버 데이터(구독자수, 예상 단가, 평균 조회수, 상승률)를 정량적·정성적으로 분석하여 예산 범위 내 최적의 포트폴리오 도출</td></tr>
+                <tr style="background:none;"><td style="font-weight:bold; border:none; padding:4px 0; color:#0f172a;">■ 할당 예산</td><td style="border:none; padding:4px 0;" class="budget-highlight">금 50,000,000원 (오천만 원)</td></tr>
+                <tr style="background:none;"><td style="font-weight:bold; border:none; padding:4px 0; color:#475569;">■ 집행 원칙</td><td style="border:none; padding:4px 0; color:#475569;">데이터 왜곡 및 일회성 소비를 방지하기 위해 채널당 <strong>'1인 1편 집행'</strong>을 기준으로 예산 한도를 충족함.</td></tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- 02. 제1안 PLAN A -->
+    <div class="section">
+        <div class="section-title">02. [제1안] 적합 채널 중심 효율 집행안 (PLAN A)</div>
+        <div style="font-size:9.5pt; color:#334155; margin-bottom:12px; padding:0 5px;">
+            <strong>선정 기조:</strong> 브랜드 안전성 및 타겟 싱크로율이 높은 적합(<span class="badge badge-o">O</span>) 채널 11개를 전원 포진시킨 후, 남은 예산 범위 내에서 리스크가 낮고 지표가 검증된 추천 크리에이터를 추가 보완하여 5,000만 원을 완벽히 소진하도록 구성함. (매니아 이미지 훼손 리스크가 있는 논란 채널은 1안에서 전면 배제)
+        </div>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th style="width:4%;">순위</th>
+                    <th style="width:11%;">채널명</th>
+                    <th style="width:8%;">적합도</th>
+                    <th style="width:10%;">구독자수</th>
+                    <th style="width:11%;">예상 단가</th>
+                    <th style="width:11%;">집행 금액</th>
+                    <th style="width:10%;">영상평균(롱폼)</th>
+                    <th style="width:9%;">30일 상승률</th>
+                    <th>데이터 기반 선정이유 및 추천 배경</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td class="text-center">1</td><td class="fw-bold">배돈</td><td class="text-center"><span class="badge badge-o">O</span></td><td class="text-right">16.3만명</td><td class="text-right">6,500,000</td><td class="text-right fw-bold">6,500,000</td><td class="text-right">6.8만</td><td class="text-right color-blue">+0.6%</td><td class="text-left">롱폼 영상별 조회수 6.8만, 탄탄한 코어 팬덤 기반 홍보 최적화</td></tr>
+                <tr><td class="text-center">2</td><td class="fw-bold">수삼티비</td><td class="text-center"><span class="badge badge-o">O</span></td><td class="text-right">31.4만명</td><td class="text-right">5,500,000</td><td class="text-right fw-bold">5,500,000</td><td class="text-right">3.3만</td><td class="text-center">-</td><td class="text-left">독보적인 채널 활동량(월 60~100개 영상)으로 상시 노출 유리</td></tr>
+                <tr><td class="text-center">3</td><td class="fw-bold">갓존슨</td><td class="text-center"><span class="badge badge-o">O</span></td><td class="text-right">11.1만명</td><td class="text-right">4,000,000</td><td class="text-right fw-bold">4,000,000</td><td class="text-right">1.7만</td><td class="text-right color-red">-0.9%</td><td class="text-left">리니지 및 MMORPG 핵심 수요층 장시간 라이브 유입 기대</td></tr>
+                <tr><td class="text-center">4</td><td class="fw-bold">도하TV</td><td class="text-center"><span class="badge badge-o">O</span></td><td class="text-right">10.2만명</td><td class="text-right">2,500,000</td><td class="text-right fw-bold">2,500,000</td><td class="text-right">3.3천</td><td class="text-center">-</td><td class="text-left">정통 MMORPG 코어 유저층 타겟팅 명확</td></tr>
+                <tr><td class="text-center">5</td><td class="fw-bold">누리형</td><td class="text-center"><span class="badge badge-o">O</span></td><td class="text-right">5.27만명</td><td class="text-right">2,500,000</td><td class="text-right fw-bold">2,500,000</td><td class="text-right">2만</td><td class="text-right color-blue">+6.3%</td><td class="text-left">일평균 롱폼 4.6만, 영상별 2만으로 클래식 유저 흡수 최적</td></tr>
+                <tr><td class="text-center">6</td><td class="fw-bold">디용TV</td><td class="text-center"><span class="badge badge-o">O</span></td><td class="text-right">9.05천명</td><td class="text-right">2,500,000</td><td class="text-right fw-bold">2,500,000</td><td class="text-right">3.8천</td><td class="text-right color-blue">+2.0%</td><td class="text-left">구독자 규모 대비 탄탄한 숏폼/롱폼 기본 조회수 밸런스</td></tr>
+                <tr><td class="text-center">7</td><td class="fw-bold">태쿤</td><td class="text-center"><span class="badge badge-o">O</span></td><td class="text-right">4.33만명</td><td class="text-right">2,000,000</td><td class="text-right fw-bold">2,000,000</td><td class="text-right">2.4천</td><td class="text-right color-blue">+0.2%</td><td class="text-left">월 60개 이상 안정적 업로드 주기로 마케팅 지속성 확보</td></tr>
+                <tr><td class="text-center">8</td><td class="fw-bold">렌즈티비</td><td class="text-center"><span class="badge badge-o">O</span></td><td class="text-right">3.97만명</td><td class="text-right">1,300,000</td><td class="text-right fw-bold">1,300,000</td><td class="text-right">2.2만</td><td class="text-right color-blue">+4.5%</td><td class="text-left">영상별 조회 2.2만 돌파 및 안정적 성장 지표로 가성비 우수</td></tr>
+                <tr><td class="text-center">9</td><td class="fw-bold">찹찹이</td><td class="text-center"><span class="badge badge-o">O</span></td><td class="text-right">3.87만명</td><td class="text-right">1,300,000</td><td class="text-right fw-bold">1,300,000</td><td class="text-right">6.5천</td><td class="text-right color-blue">+5.1%</td><td class="text-left">MMORPG 롱폼 콘텐츠 누적 조회 2.5만 회 이상 강점 보유</td></tr>
+                <tr><td class="text-center">10</td><td class="fw-bold">쌈돌이TV</td><td class="text-center"><span class="badge badge-o">O</span></td><td class="text-right">1.81만명</td><td class="text-right">1,200,000</td><td class="text-center">1,200,000</td><td class="text-right">5.7천</td><td class="text-right color-blue">+1.7%</td><td class="text-left">특정 하드코어 장르 영상에서 폭발적인 지표 생산력 증명</td></tr>
+                <tr><td class="text-center">11</td><td class="fw-bold">티버는 소정</td><td class="text-center"><span class="badge badge-o">O</span></td><td class="text-right">2.56만명</td><td class="text-right">900,000</td><td class="text-right fw-bold">900,000</td><td class="text-right">1천</td><td class="text-right color-red">-0.4%</td><td class="text-left">장시간 라이브 방송 데이터를 보유한 가성비 상위 채널</td></tr>
+                <tr><td class="text-center">12</td><td class="fw-bold">레오라이프</td><td class="text-center"><span class="badge badge-o">O</span></td><td class="text-right">1.11만명</td><td class="text-right">500,000</td><td class="text-right fw-bold">500,000</td><td class="text-right">7.3천</td><td class="text-right color-blue">+3.7%</td><td class="text-left">소형 채널 중 최고 수준의 롱폼 영상별 조회수(7.3천) 효율</td></tr>
+                <tr><td class="text-center">13</td><td class="fw-bold">예워닝</td><td class="text-center"><span class="badge badge-o">O</span></td><td class="text-right">2.01천명</td><td class="text-right">200,000</td><td class="text-right fw-bold">200,000</td><td class="text-right">795</td><td class="text-right color-blue">+3.0%</td><td class="text-left">MMORPG 타겟팅 지표 양호, 최저 단가 패키지 믹스</td></tr>
+                <tr><td class="text-center">14</td><td class="fw-bold">박쥐형 Bat</td><td class="text-center"><span class="badge badge-dash">-</span></td><td class="text-right">2.77만명</td><td class="text-right">1,000,000</td><td class="text-right fw-bold">1,000,000</td><td class="text-right">2.1천</td><td class="text-right color-blue">+0.4%</td><td class="text-left">솔 인챈트 콘텐츠로 9천 뷰 달성한 유일한 레퍼런스 채널</td></tr>
+                <tr><td class="text-center">15</td><td class="fw-bold">휘바TV</td><td class="text-center"><span class="badge badge-dash">-</span></td><td class="text-right">10.5만명</td><td class="text-right">2,500,000</td><td class="text-right fw-bold">2,500,000</td><td class="text-right">5.7천</td><td class="text-center">-</td><td class="text-left">10만 규모 게임 뉴스 채널로 초기 브랜딩 노출 확보</td></tr>
+                <tr><td class="text-center">16</td><td class="fw-bold">지호아재</td><td class="text-center"><span class="badge badge-dash">-</span></td><td class="text-right">7.28만명</td><td class="text-right">2,500,000</td><td class="text-right fw-bold">2,500,000</td><td class="text-right">4.3천</td><td class="text-right color-blue">+0.1%</td><td class="text-left">7만 구독자 풀 활용을 통한 리치 보완용 결합 채널</td></tr>
+                <tr><td class="text-center">17</td><td class="fw-bold">엔틱보스</td><td class="text-center"><span class="badge badge-dash">-</span></td><td class="text-right">2.2만명</td><td class="text-right">2,000,000</td><td class="text-right fw-bold">2,000,000</td><td class="text-right">1.8천</td><td class="text-right color-blue">+0.5%</td><td class="text-left">롱폼 일평균 3.2천 지표 활용, 예산 충족 마감용</td></tr>
+                <tr><td class="text-center">18</td><td class="fw-bold">액티브</td><td class="text-center"><span class="badge badge-dash">-</span></td><td class="text-right">4.17만명</td><td class="text-right">1,500,000</td><td class="text-right fw-bold">1,500,000</td><td class="text-right">1.9천</td><td class="text-right color-blue">+2.0%</td><td class="text-left">시청 참여는 낮으나 MMORPG 연속 생산 데이터 반영</td></tr>
+                <tr><td class="text-center">19</td><td class="fw-bold">아이엠솔이</td><td class="text-center"><span class="badge badge-dash">-</span></td><td class="text-right">3.17만명</td><td class="text-right">1,300,000</td><td class="text-right fw-bold">1,300,000</td><td class="text-right">1.5천</td><td class="text-right color-red">-0.3%</td><td class="text-left">단가 패키지 결합을 통한 정확한 예산 마감 조율</td></tr>
+                <tr><td class="text-center">20</td><td class="fw-bold">양댕이</td><td class="text-center"><span class="badge badge-dash">-</span></td><td class="text-right">1.63만명</td><td class="text-right">650,000</td><td class="text-right fw-bold">650,000</td><td class="text-right">1.4천</td><td class="text-right color-blue">+0.6%</td><td class="text-left">60만 원대 최저 라인 데이터 매칭으로 예산 완벽 소진</td></tr>
+                <tr style="background-color: #f1f5f9; font-weight:bold;">
+                    <td class="text-center" colspan="2">계</td>
+                    <td class="text-center">총 20개 채널</td>
+                    <td class="text-center">-</td>
+                    <td class="text-center">-</td>
+                    <td class="text-right color-red">50,150,000</td>
+                    <td class="text-center">총 20편</td>
+                    <td class="text-center">-</td>
+                    <td class="text-left">예산 범위(5,000만 원) 수준 완벽 부합 집행안</td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="note-text">※ 1안은 실제 계약 시 최하위 라인업 단가 네고를 통해 50,000,000원 한도 내에서 유연하게 마감 가능합니다.</div>
+    </div>
+
+    <!-- 03. 제2안 PLAN B -->
+    <div class="section">
+        <div class="section-title">03. [제2안] 전체 채널 대상 리치 극대화안 (PLAN B)</div>
+        <div style="font-size:9.5pt; color:#334155; margin-bottom:12px; padding:0 5px;">
+            <strong>선정 기조:</strong> 적합 여부와 관계없이 오직 구독자 규모 및 단가 탑다운(Top-down) 순으로 구성함. 메가 트래픽 확보에는 유리하나, 고단가 채널들의 브랜드 이미지 안전성 리스크가 집중되어 있어 리스크 제어 가이드가 필수적인 안임.
+        </div>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th style="width:4%;">순위</th>
+                    <th style="width:11%;">채널명</th>
+                    <th style="width:8%;">적합도</th>
+                    <th style="width:10%;">구독자수</th>
+                    <th style="width:11%;">예상 단가</th>
+                    <th style="width:6%;">편수</th>
+                    <th style="width:11%;">집행 금액</th>
+                    <th style="width:10%;">영상평균(롱폼)</th>
+                    <th style="width:9%;">30일 상승률</th>
+                    <th>데이터 기반 선정이유 및 리스크 관리 요망</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td class="text-center">1</td><td class="fw-bold">Team월령</td><td class="text-center"><span class="badge badge-x">X</span></td><td class="text-right">54.3만명</td><td class="text-right">20,000,000</td><td class="text-center">1편</td><td class="text-right fw-bold">20,000,000</td><td class="text-right">3천</td><td class="text-right color-red">-0.2%</td><td class="text-left">규모 1위 채널이나 구독자 이탈 및 유령 채널 지표 체크 필요</td></tr>
+                <tr><td class="text-center">2</td><td class="fw-bold">원큐</td><td class="text-center"><span class="badge badge-x">X</span></td><td class="text-right">25.4만명</td><td class="text-right">10,000,000</td><td class="text-center">1편</td><td class="text-right fw-bold">10,000,000</td><td class="text-right">1.6만</td><td class="text-center">-</td><td class="text-left"><span class="color-red">[리스크]</span> 유흥·불법 관련 민감 키워드로 매니아 이미지 훼손 우려</td></tr>
+                <tr><td class="text-center">3</td><td class="fw-bold">커멘더지코</td><td class="text-center"><span class="badge badge-x">X</span></td><td class="text-right">25.8만명</td><td class="text-right">10,000,000</td><td class="text-center">1편</td><td class="text-right fw-bold">10,000,000</td><td class="text-right">1.8만</td><td class="text-center">-</td><td class="text-left"><span class="color-red">[리스크]</span> 엑셀방 등 선정적 라이브 기조로 매니아 이미지 훼손 우려</td></tr>
+                <tr><td class="text-center">4</td><td class="fw-bold">난닝구TV</td><td class="text-center"><span class="badge badge-x">X</span></td><td class="text-right">16.3만명</td><td class="text-right">4,500,000</td><td class="text-center">1편</td><td class="text-right fw-bold">4,500,000</td><td class="text-right">1.4만</td><td class="text-center">-</td><td class="text-left"><span class="color-red">[리스크]</span> 과거 518 관련 언행 논란으로 매니아 이미지 훼손 우려</td></tr>
+                <tr><td class="text-center">5</td><td class="fw-bold">도하TV</td><td class="text-center"><span class="badge badge-o">O</span></td><td class="text-right">10.2만명</td><td class="text-right">2,500,000</td><td class="text-center">1편</td><td class="text-right fw-bold">2,500,000</td><td class="text-right">3.3천</td><td class="text-center">-</td><td class="text-left">리니지계 라이브 코어층 유입 및 2안 내 트래픽 방어선 역할</td></tr>
+                <tr><td class="text-center">6</td><td class="fw-bold">누리형</td><td class="text-center"><span class="badge badge-o">O</span></td><td class="text-right">5.27만명</td><td class="text-right">2,500,000</td><td class="text-center">1편</td><td class="text-right fw-bold">2,500,000</td><td class="text-right">2만</td><td class="text-right color-blue">+6.3%</td><td class="text-left">영상별 2만의 우수한 데이터로 고단가 채널의 리스크 보완</td></tr>
+                <tr><td class="text-center">7</td><td class="fw-bold">티버는 소정</td><td class="text-center"><span class="badge badge-o">O</span></td><td class="text-right">2.56만명</td><td class="text-right">900,000</td><td class="text-center">1편</td><td class="text-right fw-bold">900,000</td><td class="text-right">1천</td><td class="text-right color-red">-0.4%</td><td class="text-left">장시간 라이브 방송 데이터를 보유한 가성비 상위 채널</td></tr>
+                <tr><td class="text-center">8</td><td class="fw-bold">예워닝</td><td class="text-center"><span class="badge badge-o">O</span></td><td class="text-right">2.01천명</td><td class="text-right">200,000</td><td class="text-center">1편</td><td class="text-right fw-bold">200,000</td><td class="text-right">795</td><td class="text-right color-blue">+3.0%</td><td class="text-left">최저 단가 매칭을 통해 대형 채널 집행 후 잔여 예산 조율</td></tr>
+                <tr><td class="text-center">9</td><td class="fw-bold">사땅</td><td class="text-center"><span class="badge badge-x">X</span></td><td class="text-right">1.06만명</td><td class="text-right">350,000</td><td class="text-center">1편</td><td class="text-right fw-bold">350,000</td><td class="text-right">663</td><td class="text-right color-red">-0.9%</td><td class="text-left">소형 단가 매칭을 활용한 정확한 예산 정산용 채널</td></tr>
+                <tr style="background-color: #f1f5f9; font-weight:bold;">
+                    <td class="text-center" colspan="2">계</td>
+                    <td class="text-center">총 9개 채널</td>
+                    <td class="text-center">-</td>
+                    <td class="text-center">-</td>
+                    <td class="text-center">9편</td>
+                    <td class="text-right color-red">49,950,000</td>
+                    <td class="text-center">-</td>
+                    <td class="text-center">-</td>
+                    <td class="text-left">예산 범위(5,000만 원) 100% 충족 집행안</td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="note-text">
+            * <strong>[단가 유동성 주석]:</strong> 본 안의 총 집행 금액은 각 크리에이터의 최근 시장 제안가 기준 산출물이며, 최종 계약 시점의 단가 변동에 따라 5,000만 원 총액 범위 내에서 편수 및 하위 라인업이 미세 조정될 수 있습니다.
+        </div>
+    </div>
+
+    <!-- 04. 1안(PLAN A) vs 2안(PLAN B) 정량 비교 분석 -->
+    <div class="section">
+        <div class="section-title">04. 1안(PLAN A) vs 2안(PLAN B) 정량 비교 분석</div>
+        
+        <table style="font-size: 9pt;">
+            <thead>
+                <tr>
+                    <th style="width:20%;">항목</th>
+                    <th style="width:40%;">제1안 : 적합 채널 중심 (권장안)</th>
+                    <th style="width:40%;">제2안 : 전체 채널 대상 (인지도형)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="text-center fw-bold">총 집행 예산</td>
+                    <td class="text-center">금 50,150,000원 <span style="font-size:8pt; color:#64748b;">(조정 시 4,995만 원)</span></td>
+                    <td class="text-center">금 49,950,000원</td>
+                </tr>
+                <tr>
+                    <td class="text-center fw-bold">참여 채널 수</td>
+                    <td class="text-center fw-bold color-blue">20개 채널 (안정적 롱테일 분산 투자)</td>
+                    <td class="text-center">9개 채널 (메가 트래픽 집중 투자)</td>
+                </tr>
+                <tr>
+                    <td class="text-center fw-bold">최고 단가 크리에이터</td>
+                    <td class="text-center">배돈 (650만 원)</td>
+                    <td class="text-center fw-bold color-red">Team월령 (2,000만 원)</td>
+                </tr>
+                <tr>
+                    <td class="text-center fw-bold">브랜드 이미지 안전성</td>
+                    <td class="text-center fw-bold color-blue">매우 우수 (사회적 논란/유흥 채널 원천 차단)</td>
+                    <td class="text-center fw-bold color-red">매우 취약 (민감 이슈 크리에이터 다수 포함)</td>
+                </tr>
+                <tr>
+                    <td class="text-center fw-bold">마케팅 기대 ROI</td>
+                    <td>하드코어 진성 유저 유입 및 실거래 전환 [상]</td>
+                    <td>론칭 초기 화제성 붐업 및 단순 도달률 [상]</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- 종합 의견 박스 -->
+        <div class="opinion-box">
+            <div class="opinion-title">💡종합 의견</div>
+            <div class="opinion-box-content">
+                <strong>제1안(PLAN A)</strong>은 배돈, 수삼티비 등 코어 MMORPG 진성 유저층이 밀집된 채널로 구성되어 아이템매니아 실제 거래 탭으로의 유입 전환율이 가장 높을 것으로 예측됩니다. 무엇보다 사회적 논란이나 이미지 훼손 리스크가 없는 청정 채널로 구성되어 브랜드 안전성이 완벽히 보장됩니다.<br><br>
+                <strong>제2안(PLAN B)</strong>은 트래픽 규모는 강력하나 예산의 절반(2,450만 원)이 원큐(유흥/불법 키워드), 커멘더지코(선정적 라이브), 난닝구TV(518 과거 언행 논란)에 집중됩니다. 집행 시 아이템매니아의 기업 브랜드 신뢰도 및 이미지 훼손 가능성이 매우 심각하므로 홍보 효과 대비 리스크 부담이 과다하여 <strong>제1안 집행을 적극 권장</strong>합니다.
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

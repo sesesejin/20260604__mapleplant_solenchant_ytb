@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>유튜버 데이터 분석 보고서 - 메이플 플래닛 인플루언서 데이터 분석</title>
+    <style>
+        /* 기본 인쇄 및 화면 공통 스타일 */
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+        
+        @page {
+            size: A4;
+            margin: 20mm 15mm;
+            background-color: #ffffff;
+            @bottom-right {
+                content: counter(page);
+                font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+                font-size: 9pt;
+                color: #8c92ac;
+            }
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+            font-size: 10pt;
+            line-height: 1.6;
+            color: #2c3e50;
+            background-color: #ffffff;
+        }
+
+        /* 표지 및 타이틀 세션 - 네거티브 마진으로 세련된 상단 배너 구현 */
+        .report-header {
+            margin: -20mm -15mm 25px -15mm;
+            padding: 35px 20mm 30px 20mm;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            color: #ffffff;
+            border-bottom: 5px solid #3b82f6;
+        }
+        
+        .report-header .sub-tag {
+            display: inline-block;
+            background-color: #3b82f6;
+            color: #ffffff;
+            font-size: 9pt;
+            font-weight: bold;
+            padding: 4px 10px;
+            border-radius: 4px;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .report-header h1 {
+            margin: 0 0 10px 0;
+            font-size: 22pt;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            line-height: 1.3;
+        }
+        
+        .report-header .meta-info {
+            font-size: 9.5pt;
+            color: #94a3b8;
+            margin-top: 5px;
+        }
+
+        /* 대단원 섹션 */
+        .section {
+            margin-bottom: 30px;
+            page-break-inside: avoid;
+        }
+        
+        .section-title {
+            font-size: 14pt;
+            font-weight: 700;
+            color: #0f172a;
+            border-left: 5px solid #3b82f6;
+            padding-left: 10px;
+            margin-top: 0;
+            margin-bottom: 15px;
+            letter-spacing: -0.3px;
+            page-break-after: avoid;
+        }
+        
+        /* 메인 카드 박스 */
+        .card-grid {
+            margin-bottom: 20px;
+        }
+        
+        .card {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 16px;
+            margin-bottom: 15px;
+        }
+        
+        .card h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 11pt;
+            color: #1e293b;
+        }
+        
+        /* 요약 수치 강조 */
+        .budget-highlight {
+            font-size: 14pt;
+            font-weight: 700;
+            color: #ef4444;
+            margin-top: 5px;
+        }
+        
+        /* 표 스타일 */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 8.5pt;
+            margin-bottom: 15px;
+            page-break-inside: auto;
+        }
+        
+        tr {
+            page-break-inside: avoid;
+            page-break-after: auto;
+        }
+        
+        th {
+            background-color: #334155;
+            color: #ffffff;
+            font-weight: 600;
+            padding: 8px 6px;
+            border: 1px solid #475569;
+            text-align: center;
+        }
+        
+        td {
+            padding: 7px 6px;
+            border: 1px solid #e2e8f0;
+            color: #334155;
+        }
+        
+        tr:nth-child(even) td {
+            background-color: #f8fafc;
+        }
+        
+        /* 테이블 열 정렬 및 포맷 */
+        .text-center { text-align: center; }
+        .text-right { text-align: right; }
+        .text-left { text-align: left; }
+        
+        .fw-bold { font-weight: bold; }
+        .color-blue { color: #2563eb; }
+        .color-red { color: #dc2626; }
+        
+        /* 배지 스타일 */
+        .badge {
+            display: inline-block;
+            padding: 2px 6px;
+            font-size: 8pt;
+            font-weight: bold;
+            border-radius: 4px;
+            text-align: center;
+        }
+        
+        .badge-o { background-color: #dcfce7; color: #15803d; }
+        .badge-delta { background-color: #fef9c3; color: #a16207; }
+        .badge-x { background-color: #fee2e2; color: #b91c1c; }
+        
+        /* 비고 안내 텍스트 */
+        .note-text {
+            font-size: 9pt;
+            color: #64748b;
+            font-style: italic;
+            margin-top: -10px;
+            margin-bottom: 20px;
+        }
+        
+        /* 의견 박스 */
+        .opinion-box {
+            background-color: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-left: 5px solid #22c55e;
+            border-radius: 4px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+        
+        .opinion-box h4 {
+            margin-top: 0;
+            margin-bottom: 8px;
+            color: #166534;
+            font-size: 11pt;
+            display: flex;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="report-header">
+        <span class="sub-tag">Youtuber Data Analysis Report</span>
+        <h1>[메이플 플래닛] 인플루언서 데이터 분석 보고서</h1>
+        <div class="meta-info">아이템매니아 거래 활성화 크리에이터 데이터 분석 </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">01. 분석 배경 및 목적</div>
+        <div class="card">
+            <table style="width:100%; border:none; margin:0; font-size:10pt;">
+                <tr style="background:none;"><td style="width:15%; font-weight:bold; border:none; padding:5px 0; color:#0f172a;">■ 분석 배경</td><td style="border:none; padding:5px 0;">아이템매니아 거래 활성화를 위한 메이플플래닛 크리에이터 협업 추진</td></tr>
+                <tr style="background:none;"><td style="font-weight:bold; border:none; padding:5px 0; color:#0f172a;">■ 분석 목적</td><td style="border:none; padding:5px 0;">제공된 유튜버 데이터(구독자수, 예상 단가, 평균 조회수, 상승률)를 정량적·정성적으로 분석하여 예산 범위 내 최적의 포트폴리오 도출</td></tr>
+                <tr style="background:none;"><td style="font-weight:bold; border:none; padding:5px 0; color:#0f172a;">■ 할당 예산</td><td style="border:none; padding:5px 0;" class="budget-highlight">금 50,000,000원 (오천만 원)</td></tr>
+                <tr style="background:none;"><td style="font-weight:bold; border:none; padding:5px 0; color:#0f172a;">■ 집행 원칙</td><td style="border:none; padding:5px 0; color:#475569;">데이터 왜곡 및 일회성 소비 방지를 위해 채널당 <strong>'1인 1편 집행'</strong>을 기준으로 하되, 데이터 지표 우수 채널 대상 추가 편수 결합으로 예산 한도 충족함.</td></tr>
+            </table>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">02. [제1안] 적합 채널 중심 효율 집행안 (PLAN A)</div>
+        <div style="font-size:9.5pt; color:#334155; margin-bottom:12px; padding:0 5px;">
+            <strong>선정 기조:</strong> 브랜드 안전성 및 거래 탭 전환율이 높은 적합(<span class="badge badge-o">O</span>) 및 유보(<span class="badge badge-delta">△</span>) 채널 전원을 포함하고, 단가가 확인된 채널을 결합하여 예산 5,000만 원 범위 내 최적화.<br>
+            <strong>금액 도출:</strong> 적합/유보 기본 17개 채널의 1편씩 총합은 25,600,000원입니다. 여기에 예산 효율을 극대화하기 위해 데이터 지표(롱폼 조회수 및 성장률)가 폭발적인 핵심 채널들을 상급자 추천 형태로 보완(김데데, 도모, 온정성, 개리, 알티, 젬득, 갓로우 추가 편수 반영)하여 구성했습니다.
+        </div>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th style="width:4%;">순위</th>
+                    <th style="width:11%;">채널명</th>
+                    <th style="width:6%;">적합도</th>
+                    <th style="width:9%;">구독자수</th>
+                    <th style="width:10%;">예상 단가</th>
+                    <th style="width:5%;">편수</th>
+                    <th style="width:11%;">집행 금액</th>
+                    <th style="width:10%;">롱폼 평균 조회</th>
+                    <th style="width:9%;">30일 상승률</th>
+                    <th>데이터 기반 선정이유 및 분석</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td class="text-center">1</td><td class="fw-bold">김데데</td><td class="text-center"><span class="badge badge-o">O</span></td><td class="text-right">25.7만</td><td class="text-right">6,000,000</td><td class="text-center">2편</td><td class="text-right fw-bold">12,000,000</td><td class="text-right">15.4만</td><td class="text-right color-blue">+0.4%</td><td class="text-left">영상별 평균 롱폼 조회수 15.4만으로 적합 채널 중 압도적 1위</td></tr>
+                <tr><td class="text-center">2</td><td class="fw-bold">피닉스박</td><td class="text-center"><span class="badge badge-o">O</span></td><td class="text-right">26.1만</td><td class="text-right">3,000,000</td><td class="text-center">1편</td><td class="text-right fw-bold">3,000,000</td><td class="text-right">8만</td><td class="text-right color-blue">+0.4%</td><td class="text-left">구독자수 및 롱폼 조회수 8만 지표가 증명된 대형 코어 채널</td></tr>
+                <tr><td class="text-center">3</td><td class="fw-bold">도모</td><td class="text-center"><span class="badge badge-o">O</span></td><td class="text-right">3.67만</td><td class="text-right">1,250,000</td><td class="text-center">3편</td><td class="text-right fw-bold">3,750,000</td><td class="text-right">2.4만</td><td class="text-right color-blue">+6.0%</td><td class="text-left">공략 키워드 상단 노출 채널로 연속성 확보를 위한 3편 배치</td></tr>
+                <tr><td class="text-center">4</td><td class="fw-bold">개리유튜브</td><td class="text-center"><span class="badge badge-o">O</span></td><td class="text-right">13.8만</td><td class="text-right">1,200,000</td><td class="text-center">3편</td><td class="text-right fw-bold">3,600,000</td><td class="text-right">1.5만</td><td class="text-center">-</td><td class="text-left">구독자 13.8만 대형 규모 대비 단가 효율성 우수</td></tr>
+                <tr><td class="text-center">5</td><td class="fw-bold">온정성</td><td class="text-center"><span class="badge badge-o">O</span></td><td class="text-right">2.99천</td><td class="text-right">1,200,000</td><td class="text-center">3편</td><td class="text-right fw-bold">3,600,000</td><td class="text-right">4.3만</td><td class="text-right color-blue">+533.5%</td><td class="text-left">롱폼 조회수 4.3만 및 30일 상승률 +533.5%의 초고성장 채널</td></tr>
+                <tr><td class="text-center">6</td><td class="fw-bold">알티</td><td class="text-center"><span class="badge badge-o">O</span></td><td class="text-right">2.57만</td><td class="text-right">1,000,000</td><td class="text-center">3편</td><td class="text-right fw-bold">3,000,000</td><td class="text-right">2.1만</td><td class="text-right color-blue">+7.8%</td><td class="text-left">안정적인 성장률(+7.8%) 및 젊은 층 타겟 라이브 시청률 우수</td></tr>
+                <tr><td class="text-center">7</td><td class="fw-bold">홍덕이야</td><td class="text-center"><span class="badge badge-delta">△</span></td><td class="text-right">8.96천</td><td class="text-right">2,000,000</td><td class="text-center">2편</td><td class="text-right fw-bold">4,000,000</td><td class="text-right">1.7만</td><td class="text-right color-blue">+6.3%</td><td class="text-left">쇼츠 일평균 3.7만, 롱폼 영상별 1.7만으로 유보 채널 중 최고 지표</td></tr>
+                <tr><td class="text-center">8</td><td class="fw-bold">까만개미</td><td class="text-center"><span class="badge badge-o">O</span></td><td class="text-right">1.39만</td><td class="text-right">1,500,000</td><td class="text-center">2편</td><td class="text-right fw-bold">3,000,000</td><td class="text-right">3만</td><td class="text-right color-blue">+9.2%</td><td class="text-left">영상별 조회수 3만 기록, 성장세 지표 양호함에 따라 편수 확대</td></tr>
+                <tr><td class="text-center">9</td><td class="fw-bold">껨붕이의일상</td><td class="text-center"><span class="badge badge-o">O</span></td><td class="text-right">6.95천</td><td class="text-right">1,000,000</td><td class="text-center">2편</td><td class="text-right fw-bold">2,000,000</td><td class="text-right">4.1천</td><td class="text-right color-blue">+14.3%</td><td class="text-left">메이플플래닛 위주 채널 중 독보적 성장세(+14.3%) 보유</td></tr>
+                <tr><td class="text-center">10</td><td class="fw-bold">젬득</td><td class="text-center"><span class="badge badge-o">O</span></td><td class="text-right">1.36천</td><td class="text-right">550,000</td><td class="text-center">4편</td><td class="text-right fw-bold">2,200,000</td><td class="text-right">7.8천</td><td class="text-right color-blue">+1864.7%</td><td class="text-left">30일 구독자 상승률 +1864.7%로 전체 1위, 바이럴 극대화</td></tr>
+                <tr><td class="text-center">11</td><td class="fw-bold">봉이 겜생닭</td><td class="text-center"><span class="badge badge-o">O</span></td><td class="text-right">1.65천</td><td class="text-right">750,000</td><td class="text-center">2편</td><td class="text-right fw-bold">1,500,000</td><td class="text-right">4.1천</td><td class="text-right color-blue">+55.1%</td><td class="text-left">구독자수 대비 매 라이브 고조회수 및 높은 성장세(+55.1%)</td></tr>
+                <tr><td class="text-center">12</td><td class="fw-bold">최테오</td><td class="text-center"><span class="badge badge-o">O</span></td><td class="text-right">7.68천</td><td class="text-right">700,000</td><td class="text-center">2편</td><td class="text-right fw-bold">1,400,000</td><td class="text-right">5.7만</td><td class="text-right color-blue">+15.9%</td><td class="text-left">롱폼 영상별 평균 조회수 5.7만으로 단가 대비 효율성 최상위</td></tr>
+                <tr><td class="text-center">13</td><td class="fw-bold">하시우</td><td class="text-center"><span class="badge badge-o">O</span></td><td class="text-right">1.6천</td><td class="text-right">600,000</td><td class="text-center">2편</td><td class="text-right fw-bold">1,200,000</td><td class="text-right">7.4천</td><td class="text-right color-blue">+16.4%</td><td class="text-left">구독자수 대비 높은 롱폼 조회수 효율 입증</td></tr>
+                <tr><td class="text-center">14</td><td class="fw-bold">궁중불고기TV</td><td class="text-center"><span class="badge badge-o">O</span></td><td class="text-right">1.12만</td><td class="text-right">550,000</td><td class="text-center">2편</td><td class="text-right fw-bold">1,100,000</td><td class="text-right">3.9천</td><td class="text-right color-blue">+5.6%</td><td class="text-left">성인 남성 게이머 지지 기반, 일평균 롱폼 8.1천 안정적 유지</td></tr>
+                <tr><td class="text-center">15</td><td class="fw-bold">BJ우주</td><td class="text-center"><span class="badge badge-o">O</span></td><td class="text-right">5.29천</td><td class="text-right">400,000</td><td class="text-center">2편</td><td class="text-right fw-bold">800,000</td><td class="text-right">5.1천</td><td class="text-right color-blue">+2.5%</td><td class="text-left">쇼츠 일평균 조회수 3.5만으로 숏폼 믹스 가성비 우수</td></tr>
+                <tr><td class="text-center">16</td><td class="fw-bold">갓로우</td><td class="text-center"><span class="badge badge-o">O</span></td><td class="text-right">985</td><td class="text-right">200,000</td><td class="text-center">4편</td><td class="text-right fw-bold">800,000</td><td class="text-right">2.6천</td><td class="text-right color-blue">+103.7%</td><td class="text-left">상승률 +103.7% 초고성장 소형 채널로 물량 공세 적합</td></tr>
+                <tr><td class="text-center">17</td><td class="fw-bold">힐짜앙</td><td class="text-center"><span class="badge badge-delta">△</span></td><td class="text-right">939</td><td class="text-right">200,000</td><td class="text-center">3편</td><td class="text-right fw-bold">600,000</td><td class="text-right">757</td><td class="text-right color-blue">+5.4%</td><td class="text-left">저단가 채널, 길고 잦은 라이브 성향으로 노출 지속 시간 확보</td></tr>
+                <tr><td class="text-center">18</td><td class="fw-bold">한식도시락</td><td class="text-center"><span class="badge badge-delta">△</span></td><td class="text-right">685</td><td class="text-right">200,000</td><td class="text-center">3편</td><td class="text-right fw-bold">600,000</td><td class="text-right">2.5천</td><td class="text-right color-blue">+27.7%</td><td class="text-left">높은 성장률(+27.7%) 기반, 최저 단가 예산 마감용 조율</td></tr>
+                <tr style="background-color: #f1f5f9; font-weight:bold;">
+                    <td class="text-center" colspan="2">계</td>
+                    <td class="text-center">총 18개 채널</td>
+                    <td class="text-center">-</td>
+                    <td class="text-center">-</td>
+                    <td class="text-center">46편</td>
+                    <td class="text-right color-red">50,150,000</td>
+                    <td class="text-center">-</td>
+                    <td class="text-center">-</td>
+                    <td class="text-left">예산 범위(5,000만 원) 수준 부합 집행안</td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="note-text">※ 1안은 실제 계약 진행 시 '갓로우' 채널을 4편➔3편으로 미세 조정하면 정확히 49,950,000원으로 5,000만 원 한도 내 마감 가능합니다.</div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">03. [제2안] 전체 채널 대상 리치 극대화안 (PLAN B)</div>
+        <div style="font-size:9.5pt; color:#334155; margin-bottom:12px; padding:0 5px;">
+            <strong>선정 기조:</strong> 적합 여부(O, X, △)와 관계없이 오직 데이터 크기(구독자 규모 및 리치 범위)를 최우선하여 탑다운(Top-down)으로 구성함.<br>
+            <strong>금액 도출:</strong> 대형 메가 유튜버 동수칸(1,600만 원), 김데데(600만 원), 노돌리(500만 원), 피닉스박(300만 원) 등 고단가 크리에이터들을 각각 1편씩 균등 배치하여 초기 브랜딩 파급력을 확보하고, 하위 효율 채널들로 잔여 예산을 정밀 정산하여 포트폴리오를 도출했습니다.
+        </div>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th style="width:4%;">순위</th>
+                    <th style="width:11%;">채널명</th>
+                    <th style="width:6%;">적합도</th>
+                    <th style="width:9%;">구독자수</th>
+                    <th style="width:10%;">예상 단가</th>
+                    <th style="width:5%;">편수</th>
+                    <th style="width:11%;">집행 금액</th>
+                    <th style="width:10%;">롱폼 평균 조회</th>
+                    <th style="width:9%;">30일 상승률</th>
+                    <th>데이터 기반 선정이유 및 리스크</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td class="text-center">1</td><td class="fw-bold">동수칸</td><td class="text-center"><span class="badge badge-x">X</span></td><td class="text-right">57.3만</td><td class="text-right">16,000,000</td><td class="text-center">1편</td><td class="text-right fw-bold">16,000,000</td><td class="text-right">30.6만</td><td class="text-right color-blue">+1.4%</td><td class="text-left">전체 리스트 중 구독자 및 롱폼 조회수(30.6만) 1위 메가 채널</td></tr>
+                <tr><td class="text-center">2</td><td class="fw-bold">김데데</td><td class="text-center"><span class="badge badge-o">O</span></td><td class="text-right">25.7만</td><td class="text-right">6,000,000</td><td class="text-center">1편</td><td class="text-right fw-bold">6,000,000</td><td class="text-right">15.4만</td><td class="text-right color-blue">+0.4%</td><td class="text-left">타겟 적합성과 대형 조회수(15.4만)를 동시에 충족하는 채널</td></tr>
+                <tr><td class="text-center">3</td><td class="fw-bold">노돌리</td><td class="text-center"><span class="badge badge-x">X</span></td><td class="text-right">34.5만</td><td class="text-right">5,000,000</td><td class="text-center">1편</td><td class="text-right fw-bold">5,000,000</td><td class="text-right">1.1만</td><td class="text-right color-red">-0.3%</td><td class="text-left">구독자 34.5만 대형 인지도 확보, 광범위 도달에 기여</td></tr>
+                <tr><td class="text-center">4</td><td class="fw-bold">피닉스박</td><td class="text-center"><span class="badge badge-o">O</span></td><td class="text-right">26.1만</td><td class="text-right">3,000,000</td><td class="text-center">1편</td><td class="text-right fw-bold">3,000,000</td><td class="text-right">8만</td><td class="text-right color-blue">+0.4%</td><td class="text-left">롱폼 영상별 조회수 8만으로 규모 대비 탁월한 지표 입증</td></tr>
+                <tr><td class="text-center">5</td><td class="fw-bold">포피셜</td><td class="text-center"><span class="badge badge-x">X</span></td><td class="text-right">9.98만</td><td class="text-right">1,500,000</td><td class="text-center">2편</td><td class="text-right fw-bold">3,000,000</td><td class="text-right">4.3만</td><td class="text-right color-blue">+1.6%</td><td class="text-left">구독자 10만에 육박하며 쇼츠 영상별 평균 12.3만 조회 기록</td></tr>
+                <tr><td class="text-center">6</td><td class="fw-bold">도모</td><td class="text-center"><span class="badge badge-o">O</span></td><td class="text-right">3.67만</td><td class="text-right">1,250,000</td><td class="text-center">2편</td><td class="text-right fw-bold">2,500,000</td><td class="text-right">2.4만</td><td class="text-right color-blue">+6.0%</td><td class="text-left">롱폼 지표 우수 및 검색 트래픽 점유를 통한 유입 안정화</td></tr>
+                <tr><td class="text-center">7</td><td class="fw-bold">개리유튜브</td><td class="text-center"><span class="badge badge-o">O</span></td><td class="text-right">13.8만</td><td class="text-right">1,200,000</td><td class="text-center">2편</td><td class="text-right fw-bold">2,400,000</td><td class="text-right">1.5만</td><td class="text-center">-</td><td class="text-left">대형 규모 채널군 중 단가 대비 리치 확보 가성비 최상</td></tr>
+                <tr><td class="text-center">8</td><td class="fw-bold">홍덕이야</td><td class="text-center"><span class="badge badge-delta">△</span></td><td class="text-right">8.96천</td><td class="text-right">2,000,000</td><td class="text-center">1편</td><td class="text-right fw-bold">2,000,000</td><td class="text-right">1.7만</td><td class="text-right color-blue">+6.3%</td><td class="text-left">쇼츠 롱폼 밸런스가 좋아 높은 단가에도 브랜딩 효과 기대</td></tr>
+                <tr><td class="text-center">9</td><td class="fw-bold">알티</td><td class="text-center"><span class="badge badge-o">O</span></td><td class="text-right">2.57만</td><td class="text-right">1,000,000</td><td class="text-center">2편</td><td class="text-right fw-bold">2,000,000</td><td class="text-right">2.1만</td><td class="text-right color-blue">+7.8%</td><td class="text-left">성장 지표 안정적이며 타겟팅 전환 효율 최적화</td></tr>
+                <tr><td class="text-center">10</td><td class="fw-bold">온정성</td><td class="text-center"><span class="badge badge-o">O</span></td><td class="text-right">2.99천</td><td class="text-right">1,200,000</td><td class="text-center">1편</td><td class="text-right fw-bold">1,200,000</td><td class="text-right">4.3만</td><td class="text-right color-blue">+533.5%</td><td class="text-left">롱폼 조회수 4.3만으로 단가 대비 트래픽 생산 능력 폭발적</td></tr>
+                <tr><td class="text-center">11</td><td class="fw-bold">껨붕이의일상</td><td class="text-center"><span class="badge badge-o">O</span></td><td class="text-right">6.95천</td><td class="text-right">1,000,000</td><td class="text-center">1편</td><td class="text-right fw-bold">1,000,000</td><td class="text-right">4.1천</td><td class="text-right color-blue">+14.3%</td><td class="text-left">2030 핵심 구매 타겟층 데이터 싱크로율 우수</td></tr>
+                <tr><td class="text-center">12</td><td class="fw-bold">시노</td><td class="text-center"><span class="badge badge-x">X</span></td><td class="text-right">3.22만</td><td class="text-right">800,000</td><td class="text-center">1편</td><td class="text-right fw-bold">800,000</td><td class="text-right">4.5천</td><td class="text-right color-blue">+0.6%</td><td class="text-left">쇼츠 영상별 평균 조회수 6.1만 데이터 활용 목적 포함</td></tr>
+                <tr><td class="text-center">13</td><td class="fw-bold">식중땐</td><td class="text-center"><span class="badge badge-x">X</span></td><td class="text-right">2.79만</td><td class="text-right">800,000</td><td class="text-center">1편</td><td class="text-right fw-bold">800,000</td><td class="text-right">7.4천</td><td class="text-right color-blue">+1.8%</td><td class="text-left">쇼츠 영상별 평균 조회수 12.8만 데이터 기반 트래픽 확보</td></tr>
+                <tr><td class="text-center">14</td><td class="fw-bold">최테오</td><td class="text-center"><span class="badge badge-o">O</span></td><td class="text-right">7.68천</td><td class="text-right">700,000</td><td class="text-center">1편</td><td class="text-right fw-bold">700,000</td><td class="text-right">5.7만</td><td class="text-right color-blue">+15.9%</td><td class="text-left">롱폼 영상별 조회 5.7만으로 중소 채널 중 조회 지표 1위</td></tr>
+                <tr><td class="text-center">15</td><td class="fw-bold">젬득</td><td class="text-center"><span class="badge badge-o">O</span></td><td class="text-right">1.36천</td><td class="text-right">550,000</td><td class="text-center">2편</td><td class="text-right fw-bold">1,100,000</td><td class="text-right">7.8천</td><td class="text-right color-blue">+1864.7%</td><td class="text-left">폭발적인 채널 성장 지표 반영으로 포트폴리오 다각화</td></tr>
+                <tr><td class="text-center">16</td><td class="fw-bold">봉이 겜생닭</td><td class="text-center"><span class="badge badge-o">O</span></td><td class="text-right">1.65천</td><td class="text-right">750,000</td><td class="text-center">1편</td><td class="text-right fw-bold">750,000</td><td class="text-right">4.1천</td><td class="text-right color-blue">+55.1%</td><td class="text-left">라이브 지표가 견고하여 브랜딩 지속 노출에 기여</td></tr>
+                <tr><td class="text-center">17</td><td class="fw-bold">낭만전붕이</td><td class="text-center"><span class="badge badge-x">X</span></td><td class="text-right">3.48천</td><td class="text-right">600,000</td><td class="text-center">1편</td><td class="text-right fw-bold">600,000</td><td class="text-right">1.1천</td><td class="text-right color-blue">+9.3%</td><td class="text-left">쇼츠 영상별 평균 3.5만 지표 활용을 위한 라인업 편입</td></tr>
+                <tr><td class="text-center">18</td><td class="fw-bold">하시우</td><td class="text-center"><span class="badge badge-o">O</span></td><td class="text-right">1.6천</td><td class="text-right">600,000</td><td class="text-center">1편</td><td class="text-right fw-bold">600,000</td><td class="text-right">7.4천</td><td class="text-right color-blue">+16.4%</td><td class="text-left">구독자수 대비 높은 효율의 데이터 밸런스 유지</td></tr>
+                <tr><td class="text-center">19</td><td class="fw-bold">갓로우</td><td class="text-center"><span class="badge badge-o">O</span></td><td class="text-right">985</td><td class="text-right">200,000</td><td class="text-center">1편</td><td class="text-right fw-bold">200,000</td><td class="text-right">2.6천</td><td class="text-right color-blue">+103.7%</td><td class="text-left">성장률 100% 돌파 지표를 가진 최저 단가 가성비 채널</td></tr>
+                <tr><td class="text-center">20</td><td class="fw-bold">BJ우주</td><td class="text-center"><span class="badge badge-o">O</span></td><td class="text-right">5.29천</td><td class="text-right">400,000</td><td class="text-center">1편</td><td class="text-right fw-bold">400,000</td><td class="text-right">5.1천</td><td class="text-right color-blue">+2.5%</td><td class="text-left">쇼츠 일평균 3.5만 뷰 유입용 포트폴리오 마감</td></tr>
+                <tr style="background-color: #f1f5f9; font-weight:bold;">
+                    <td class="text-center" colspan="2">계</td>
+                    <td class="text-center">총 20개 채널</td>
+                    <td class="text-center">-</td>
+                    <td class="text-center">-</td>
+                    <td class="text-center">27편</td>
+                    <td class="text-right color-red">49,950,000</td>
+                    <td class="text-center">-</td>
+                    <td class="text-center">-</td>
+                    <td class="text-left">예산 범위(5,000만 원) 100% 충족 집행안</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="section">
+        <div class="section-title">04. 1안(PLAN A) vs 2안(PLAN B) 비교 분석</div>
+        
+        <table style="font-size: 9pt;">
+            <thead>
+                <tr>
+                    <th style="width:20%;">項目</th>
+                    <th style="width:40%;">제1안 : 적합 채널 중심 (타겟집중형)</th>
+                    <th style="width:40%;">제2안 : 전체 채널 대상 (인지도확산형)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="text-center fw-bold">총 집행 예산</td>
+                    <td class="text-center">금 50,150,000원 <span style="font-size:8pt; color:#64748b;">(조정 시 4,995만 원)</span></td>
+                    <td class="text-center">금 49,950,000원</td>
+                </tr>
+                <tr>
+                    <td class="text-center fw-bold">참여 채널 수</td>
+                    <td class="text-center">18개 채널</td>
+                    <td class="text-center">20개 채널</td>
+                </tr>
+                <tr>
+                    <td class="text-center fw-bold">총 콘텐츠 편수</td>
+                    <td class="text-center fw-bold color-blue">46편 (콘텐츠 물량 대폭 확보)</td>
+                    <td class="text-center">27편 (단발성 대형 노출 중심)</td>
+                </tr>
+                <tr>
+                    <td class="text-center fw-bold">최고 단가 인플루언서</td>
+                    <td class="text-center">김데데 (600만 원)</td>
+                    <td class="text-center fw-bold color-red">동수칸 (1,600만 원)</td>
+                </tr>
+                <tr>
+                    <td class="text-center fw-bold">예산 집행 성격</td>
+                    <td>리스크 없는 검증된 적합 채널에 분산 투자</td>
+                    <td>초대형 트래픽 채널 탑다운 배치로 인지도 급상승</td>
+                </tr>
+                <tr>
+                    <td class="text-center fw-bold">데이터 기대 효과</td>
+                    <td class="fw-bold">코어 유저 타겟팅, 실질 거래 유도 및 ROI 우수</td>
+                    <td class="fw-bold">광범위 타겟 도달(Reach) 및 브랜드 붐업 최적화</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="opinion-box">
+            <h4>💡종합 의견</h4>
+            <p style="margin: 5px 0 0 0; font-size: 9.5pt; color: #1e293b;">
+                <strong>제1안(PLAN A)</strong>은 메이플플래닛 진성 게이머들이 직접 소비하는 정보·공략형 채널을 타겟팅하므로, 배너 및 콘텐츠 집행 시 <strong>아이템매니아 실거래 유저 전환율이 가장 높을 것으로 예측</strong>됩니다. 또한 46편의 풍부한 콘텐츠가 생산되어 장기 노출(롱테일 효과) 측면에서 지표 누적에 절대적으로 유리합니다.<br><br>
+                <strong>제2안(PLAN B)</strong>은 동수칸(57.3만)을 필두로 메가 유튜버의 압도적인 조회수 파워를 활용해 <strong>플랫폼 오픈 초기에 대중적인 트래픽을 단숨에 끌어올리는 데 최적화</strong>된 안입니다. 사업부의 단기 목표(전환 vs 인지도)에 따라 최종 선정이 요구됩니다.
+            </p>
+        </div>
+    </div>
+
+</body>
+</html>
